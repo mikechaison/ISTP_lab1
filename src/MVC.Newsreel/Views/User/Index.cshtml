@@ -1,0 +1,39 @@
+@model IEnumerable<MVC.Newsreel.Data.User>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Редактори</title>
+</head>
+<body>
+<p>
+    <a asp-action="Create">Додати нового редактора</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Редактори
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.UserId">Змінити</a> |
+                <a asp-action="Details" asp-route-id="@item.UserId">Деталі</a> |
+                <a asp-action="Delete" asp-route-id="@item.UserId">Видалити</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,56 @@
+@model MVC.Newsreel.Data.Article
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Видалення</title>
+</head>
+<body>
+
+<h3>Видаляти статтю?</h3>
+<div>
+    <h4>Стаття</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            Заголовок
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class = "col-sm-2">
+            Текст
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Text)
+        </dd>
+        <dt class = "col-sm-2">
+            Дата публікації
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PubDate)
+        </dd>
+        <dt class = "col-sm-2">
+            Автор
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Author.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            Категорія
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Category.Name)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ArticleId" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Назад</a>
+    </form>
+</div>
+</body>
+</html>

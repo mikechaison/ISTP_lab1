@@ -1,0 +1,31 @@
+@model MVC.Newsreel.Data.User
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Видалення</title>
+</head>
+<body>
+
+<h3>Видаляти редактора?</h3>
+<div>
+    <h4>Редактор</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            Ім'я
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="UserId" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Назад</a>
+    </form>
+</div>
+</body>
+</html>

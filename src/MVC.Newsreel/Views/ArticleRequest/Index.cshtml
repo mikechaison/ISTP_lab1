@@ -1,0 +1,57 @@
+@model IEnumerable<MVC.Newsreel.Data.ArticleRequest>
+    
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Керування статтями</title>
+</head>
+<body>
+<p>
+    <a asp-action="Create">Додати новий запит</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Статус
+            </th>
+            <th>
+                Стаття
+            </th>
+            <th>
+                Чорнова стаття
+            </th>
+            <th>
+                Редактор
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Article.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArticleDraft.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ArticleRequestId">Змінити</a> |
+                <a asp-action="Details" asp-route-id="@item.ArticleRequestId">Деталі</a> |
+                <a asp-action="Delete" asp-route-id="@item.ArticleRequestId">Видаляти</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+</body>
+</html>
