@@ -64,6 +64,7 @@ namespace MVC.Newsreel.Controllers_
         {
             if (ModelState.IsValid)
             {
+                articleRequest.Status="Checking";
                 _context.Add(articleRequest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -110,6 +111,26 @@ namespace MVC.Newsreel.Controllers_
                 try
                 {
                     _context.Update(articleRequest);
+                    if (articleRequest.Status=="Approved")
+                    {
+                        var articleDraft = await _context.ArticleDrafts
+                            .Include(a => a.SuggestedCategory)
+                            .Include(a => a.Author)
+                            .FirstOrDefaultAsync(m => m.ArticleDraftId == articleRequest.ArticleDraftId);
+                        Article article = new Article
+                        {
+                            Title = articleDraft.Title,
+                            Text = articleDraft.Text,
+                            AuthorId = articleDraft.AuthorId,
+                            Author = articleDraft.Author,
+                            CategoryId = articleDraft.SuggestedCategoryId,
+                            Category = articleDraft.SuggestedCategory,
+                            PubDate = DateTime.UtcNow,
+                            Image = articleDraft.Image,
+                            ImageFile = articleDraft.ImageFile
+                        };
+                        _context.Add(article);
+                    }
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

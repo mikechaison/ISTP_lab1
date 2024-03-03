@@ -14,6 +14,8 @@ public partial class ArticleDraft
     public int? SuggestedCategoryId { get; set; } = null;
 
     public string Text { get; set; } = null!;
+    
+    public string? Image { get; set; }
 
     public virtual ICollection<ArticleRequest> ArticleRequests { get; set; } = new List<ArticleRequest>();
 

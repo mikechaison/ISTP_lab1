@@ -1,13 +1,16 @@
 using MVC.Newsreel.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<Lab1dbContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Lab1dbContext")));
+    {options.UseSqlServer(builder.Configuration.GetConnectionString("Lab1dbContext"));
+    options.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored));
+    });
 
 
 var app = builder.Build();

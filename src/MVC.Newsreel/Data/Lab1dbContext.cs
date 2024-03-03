@@ -25,8 +25,6 @@ public partial class Lab1dbContext : DbContext
 
     public virtual DbSet<Comment> Comments { get; set; }
 
-    public virtual DbSet<Dislike> Dislikes { get; set; }
-
     public virtual DbSet<Like> Likes { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -40,6 +38,7 @@ public partial class Lab1dbContext : DbContext
             entity.Property(e => e.ArticleId).HasColumnName("ArticleID");
             entity.Property(e => e.AuthorId).HasColumnName("AuthorID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
+            entity.Property(e => e.Image).HasColumnName("image");
             entity.Property(e => e.PubDate).HasColumnType("datetime");
             entity.Property(e => e.Text).HasColumnType("text");
             entity.Property(e => e.Title).HasColumnType("text");
@@ -61,6 +60,7 @@ public partial class Lab1dbContext : DbContext
 
             entity.Property(e => e.ArticleDraftId).HasColumnName("ArticleDraftID");
             entity.Property(e => e.AuthorId).HasColumnName("AuthorID");
+            entity.Property(e => e.Image).HasColumnName("image");
             entity.Property(e => e.SuggestedCategoryId).HasColumnName("SuggestedCategoryID");
             entity.Property(e => e.Text).HasColumnType("text");
             entity.Property(e => e.Title).HasColumnType("text");
@@ -131,34 +131,12 @@ public partial class Lab1dbContext : DbContext
                 .HasConstraintName("FK_Comment_Author");
         });
 
-        modelBuilder.Entity<Dislike>(entity =>
-        {
-            entity.Property(e => e.DislikeId)
-                .ValueGeneratedNever()
-                .HasColumnName("DislikeID");
-            entity.Property(e => e.ArticleId).HasColumnName("ArticleID");
-            entity.Property(e => e.CommentId).HasColumnName("CommentID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-
-            entity.HasOne(d => d.Article).WithMany(p => p.DislikesNavigation)
-                .HasForeignKey(d => d.ArticleId)
-                .HasConstraintName("FK_User_Article");
-
-            entity.HasOne(d => d.Comment).WithMany(p => p.DislikesNavigation)
-                .HasForeignKey(d => d.CommentId)
-                .HasConstraintName("FK_User_Comment");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Dislikes)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_User_Dislike");
-        });
-
         modelBuilder.Entity<Like>(entity =>
         {
             entity.Property(e => e.LikeId).HasColumnName("LikeID");
             entity.Property(e => e.ArticleId).HasColumnName("ArticleID");
             entity.Property(e => e.CommentId).HasColumnName("CommentID");
+            entity.Property(e => e.IsDis).HasColumnName("is_dis");
             entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity.HasOne(d => d.Article).WithMany(p => p.LikesNavigation)

@@ -12,10 +12,13 @@ namespace MVC.Newsreel.Controllers_
     public class ArticleDraftController : Controller
     {
         private readonly Lab1dbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ArticleDraftController(Lab1dbContext context)
+        public ArticleDraftController(Lab1dbContext context,
+                                    IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: ArticleDraft
@@ -58,10 +61,19 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArticleDraftId,Title,AuthorId,SuggestedCategoryId,Text")] ArticleDraft articleDraft)
+        public async Task<IActionResult> Create([Bind("ArticleDraftId,Title,AuthorId,SuggestedCategoryId,Text,ImageFile")] ArticleDraft articleDraft)
         {
             if (ModelState.IsValid)
             {
+                if (articleDraft.ImageFile != null)
+                {
+                    string folder = "static/images/Article/";
+                    folder += Guid.NewGuid().ToString() + "_" + articleDraft.ImageFile.FileName ;
+                    articleDraft.Image = "/"+folder;
+                    string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+
+                    await articleDraft.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+                }
                 _context.Add(articleDraft);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -94,7 +106,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArticleDraftId,Title,AuthorId,SuggestedCategoryId,Text")] ArticleDraft articleDraft)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticleDraftId,Title,AuthorId,SuggestedCategoryId,Text,ImageFile")] ArticleDraft articleDraft)
         {
             if (id != articleDraft.ArticleDraftId)
             {
@@ -105,6 +117,15 @@ namespace MVC.Newsreel.Controllers_
             {
                 try
                 {
+                    if (articleDraft.ImageFile != null)
+                    {
+                        string folder = "static/images/Article/";
+                        folder += Guid.NewGuid().ToString() + "_" + articleDraft.ImageFile.FileName ;
+                        articleDraft.Image = "/"+folder;
+                        string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+
+                        await articleDraft.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+                    }
                     _context.Update(articleDraft);
                     await _context.SaveChangesAsync();
                 }

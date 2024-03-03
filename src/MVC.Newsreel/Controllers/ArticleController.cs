@@ -13,10 +13,13 @@ namespace MVC.Newsreel.Controllers_
     public class ArticleController : Controller
     {
         private readonly Lab1dbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ArticleController(Lab1dbContext context)
+        public ArticleController(Lab1dbContext context,
+                                IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Article
@@ -37,11 +40,22 @@ namespace MVC.Newsreel.Controllers_
             var article = await _context.Articles
                 .Include(a => a.Author)
                 .Include(a => a.Category)
+                .Include(a => a.Comments).ThenInclude(a => a.Author)
                 .FirstOrDefaultAsync(m => m.ArticleId == id);
+            article.Likes=_context.Likes.Where(a => a.ArticleId == article.ArticleId).Where(a => !a.IsDis).Count();
+            article.Dislikes=_context.Likes.Where(a => a.ArticleId == article.ArticleId).Where(a => a.IsDis).Count();
+            foreach (var item in article.Comments)
+            {
+                item.Likes=_context.Likes.Where(a => a.CommentId == item.CommentId).Where(a => !a.IsDis).Count();
+                item.Dislikes=_context.Likes.Where(a => a.CommentId == item.CommentId).Where(a => a.IsDis).Count();
+            }
             if (article == null)
             {
                 return NotFound();
             }
+
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title");
+            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name");
 
             return View(article);
         }
@@ -59,13 +73,26 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ArticleId,Title,CategoryId,AuthorId,Text,Likes,Dislikes,PubDate")] Article article)
+        public async Task<IActionResult> Create([Bind("ArticleId,Title,CategoryId,AuthorId,Text,Likes,Dislikes,PubDate,ImageFile")] Article article)
         {
             if (ModelState.IsValid)
             {
+                if (article.ImageFile != null)
+                {
+                    string folder = "static/images/Article/";
+                    folder += Guid.NewGuid().ToString() + "_" + article.ImageFile.FileName ;
+                    article.Image = "/"+folder;
+                    string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+
+                    await article.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+                }
+                article.PubDate=DateTime.UtcNow;
                 _context.Add(article);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+            }
+            else{
+                Console.WriteLine("aboba");
             }
             ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "UserId", article.AuthorId);
             ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", article.CategoryId);
@@ -95,7 +122,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ArticleId,Title,CategoryId,AuthorId,Text,Likes,Dislikes,PubDate")] Article article)
+        public async Task<IActionResult> Edit(int id, [Bind("ArticleId,Title,CategoryId,AuthorId,Text,Likes,Dislikes,PubDate,ImageFile")] Article article)
         {
             if (id != article.ArticleId)
             {
@@ -104,8 +131,18 @@ namespace MVC.Newsreel.Controllers_
 
             if (ModelState.IsValid)
             {
+                if (article.ImageFile != null)
+                {
+                    string folder = "static/images/Article/";
+                    folder += Guid.NewGuid().ToString() + "_" + article.ImageFile.FileName ;
+                    article.Image = "/"+folder;
+                    string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+
+                    await article.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+                }
                 try
                 {
+                    article.PubDate=DateTime.UtcNow;
                     _context.Update(article);
                     await _context.SaveChangesAsync();
                 }

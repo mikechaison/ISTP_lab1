@@ -48,8 +48,8 @@ namespace MVC.Newsreel.Controllers_
         // GET: Comment/Create
         public IActionResult Create()
         {
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId");
-            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "UserId");
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title");
+            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name");
             return View();
         }
 
@@ -62,9 +62,10 @@ namespace MVC.Newsreel.Controllers_
         {
             if (ModelState.IsValid)
             {
+                comment.PubDate=DateTime.UtcNow;
                 _context.Add(comment);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "Article", new { id = comment.ArticleId } );
             }
             ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", comment.ArticleId);
             ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "UserId", comment.AuthorId);
@@ -84,8 +85,8 @@ namespace MVC.Newsreel.Controllers_
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", comment.ArticleId);
-            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "UserId", comment.AuthorId);
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title", comment.ArticleId);
+            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name", comment.AuthorId);
             return View(comment);
         }
 

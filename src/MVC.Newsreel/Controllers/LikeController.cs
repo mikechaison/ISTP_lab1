@@ -49,9 +49,9 @@ namespace MVC.Newsreel.Controllers_
         // GET: Like/Create
         public IActionResult Create()
         {
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId");
-            ViewData["CommentId"] = new SelectList(_context.Comments, "CommentId", "CommentId");
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId");
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title");
+            ViewData["CommentId"] = new SelectList(_context.Comments, "CommentId", "Text");
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Name");
             return View();
         }
 
@@ -87,9 +87,9 @@ namespace MVC.Newsreel.Controllers_
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", like.ArticleId);
-            ViewData["CommentId"] = new SelectList(_context.Comments, "CommentId", "CommentId", like.CommentId);
-            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "UserId", like.UserId);
+            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title", like.ArticleId);
+            ViewData["CommentId"] = new SelectList(_context.Comments, "CommentId", "Text", like.CommentId);
+            ViewData["UserId"] = new SelectList(_context.Users, "UserId", "Name", like.UserId);
             return View(like);
         }
 

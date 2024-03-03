@@ -27,8 +27,9 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
+                <a asp-action="Details" asp-route-id="@item.UserId">Статті</a> |
+                <a asp-action="Comments" asp-route-id="@item.UserId">Коментарі</a> |
                 <a asp-action="Edit" asp-route-id="@item.UserId">Змінити</a> |
-                <a asp-action="Details" asp-route-id="@item.UserId">Деталі</a> |
                 <a asp-action="Delete" asp-route-id="@item.UserId">Видалити</a>
             </td>
         </tr>

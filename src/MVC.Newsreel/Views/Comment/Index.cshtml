@@ -5,32 +5,26 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
+    <title>Коментарі</title>
 </head>
 <body>
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Додати новий коментар</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Text)
+                Текст
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Likes)
+                Дата публікації
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Dislikes)
+                Стаття
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PubDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Article)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Author)
+                Автор
             </th>
             <th></th>
         </tr>
@@ -42,24 +36,18 @@
                 @Html.DisplayFor(modelItem => item.Text)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Likes)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Dislikes)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.PubDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Article.ArticleId)
+                @Html.DisplayFor(modelItem => item.Article.Title)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Author.UserId)
+                @Html.DisplayFor(modelItem => item.Author.Name)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.CommentId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CommentId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CommentId">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.CommentId">Змінити</a> |
+                <a asp-action="Details" asp-route-id="@item.CommentId">Деталі</a> |
+                <a asp-action="Delete" asp-route-id="@item.CommentId">Видалити</a>
             </td>
         </tr>
 }

@@ -31,6 +31,10 @@
                 <select asp-for="CommentId" class="form-control" asp-items="ViewBag.CommentId"></select>
                 <span asp-validation-for="CommentId" class="text-danger"></span>
             </div>
+            <div class="form-group-checkbox">
+                @Html.EditorFor(m => m.IsDis)
+                <label asp-for="IsDis" class="control-label"></label>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

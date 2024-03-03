@@ -39,7 +39,26 @@ namespace MVC.Newsreel.Controllers_
                 return NotFound();
             }
 
-            return View(user);
+            var lab1dbContext = _context.Articles.Where(a => a.AuthorId == id).Include(a => a.Author).Include(a => a.Category);
+            return View(await lab1dbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> Comments(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(m => m.UserId == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var lab1dbContext = _context.Comments.Where(a => a.AuthorId == id).Include(a => a.Author).Include(a => a.Article);
+            return View(await lab1dbContext.ToListAsync());
         }
 
         // GET: User/Create

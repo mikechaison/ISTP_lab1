@@ -21,6 +21,8 @@ public partial class Article
 
     public DateTime? PubDate { get; set; } = null;
 
+    public string? Image { get; set; }
+
     public virtual ICollection<ArticleRequest> ArticleRequests { get; set; } = new List<ArticleRequest>();
 
     public virtual User? Author { get; set; } = null!;
@@ -28,8 +30,6 @@ public partial class Article
     public virtual Category? Category { get; set; } = null!;
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
-
-    public virtual ICollection<Dislike> DislikesNavigation { get; set; } = new List<Dislike>();
 
     public virtual ICollection<Like> LikesNavigation { get; set; } = new List<Like>();
 }

@@ -39,7 +39,8 @@ namespace MVC.Newsreel.Controllers_
                 return NotFound();
             }
 
-            return View(category);
+            var lab1dbContext = _context.Articles.Where(a => a.CategoryId == id).Include(a => a.Author).Include(a => a.Category);
+            return View(await lab1dbContext.ToListAsync());
         }
 
         // GET: Category/Create
