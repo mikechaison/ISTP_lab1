@@ -13,7 +13,7 @@ public partial class ArticleRequest
 
     public int? ArticleId { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; } = null!;
 
     public virtual Article? Article { get; set; }
 
