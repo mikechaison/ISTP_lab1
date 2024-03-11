@@ -6,6 +6,12 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>@Html.DisplayFor(model => model.Title)</title>
+    <script>
+        function clearContent()
+        {
+            document.getElementById("output").value='';
+        }
+    </script>
 </head>
 <body>
 <div align="center">
@@ -14,7 +20,7 @@
 </div>
 <div>
     <h1>@Html.DisplayFor(model => model.Title)</h1>
-    <div>@Html.DisplayFor(model => model.PubDate) | @Html.DisplayFor(model => model.Author.Name) | <strong>@Html.DisplayFor(model => model.Category.Name)</strong></div>
+    <div class="text-body-caption">@Html.DisplayFor(model => model.PubDate) | @Html.DisplayFor(model => model.Author.Name) | <strong>@Html.DisplayFor(model => model.Category.Name)</strong></div>
     <p>@Html.DisplayFor(model => model.Text)</p>
     <div class="like-container">
         @Html.DisplayFor(model=>model.Likes)<button class="like-button">👍</button>
@@ -29,7 +35,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="Text" class="control-label"></label>
-        <textarea asp-for="Text" class="form-control commentinput"></textarea>
+        <textarea name="Text" id="output" class="form-control commentinput"></textarea>
         <span asp-validation-for="Text" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -49,9 +55,9 @@
     <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
     <div class="col p-4 d-flex flex-column position-static">
         <strong class="d-inline-block mb-2 text-primary-emphasis">@Html.DisplayFor(modelItem => item.Author.Name)</strong>
-        <div class="mb-1 text-body-secondary">@Html.DisplayFor(modelItem => item.PubDate)</div>
+        <div class="text-body-caption">@Html.DisplayFor(modelItem => item.PubDate)</div>
         <p class="card-text mb-auto">@Html.DisplayFor(modelItem => item.Text)</p>
-        <div>
+        <div class="like-container">
             @Html.DisplayFor(modelItem=>item.Likes)<button class="like-button">👍</button>
             @Html.DisplayFor(modelItem=>item.Dislikes)<button class="like-button">👎</button>
         </div>

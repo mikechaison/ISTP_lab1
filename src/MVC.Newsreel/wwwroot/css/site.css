@@ -26,11 +26,11 @@ a{
 }
 
 a:hover, h3.mb-0:hover, h5.mb-0:hover{
-  color: #90a1d6;
+  color: #878B9D;
 }
 
 a:active, h3.mb-0:active, h5.mb-0:active{
-  color: #a8bbf7;
+  color: #ACB0C3;
 }
 
 div.artreq-container{
@@ -100,4 +100,16 @@ tr.border-table{
 
 .like-container{
   margin-left: 10px;
+}
+
+p, h1, h2, h3, h4, h5, strong, label, a, option, select, strong.d-inline-block.mb-2.text-primary-emphasis{
+  color: #424656;
+}
+
+.text-body-caption, .like-container, .artreq-card-body, .form-control, .custom-file-input, .container{
+  color: #636778;
+}
+
+input.btn.btn-primary{
+  color: #424656;
 }

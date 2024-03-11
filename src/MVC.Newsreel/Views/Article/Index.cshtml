@@ -18,7 +18,7 @@
         <strong class="d-inline-block mb-2 text-primary-emphasis">@Html.DisplayFor(modelItem => item.Category.Name)</strong>
         <a asp-action="Details" asp-route-id="@item.ArticleId">
             <h3 class="mb-0">@Html.DisplayFor(modelItem => item.Title)</h3></a>
-        <div class="mb-1 text-body-secondary">@Html.DisplayFor(modelItem => item.PubDate) | @Html.DisplayFor(modelItem => item.Author.Name)</div>
+        <div class="text-body-caption">@Html.DisplayFor(modelItem => item.PubDate) | @Html.DisplayFor(modelItem => item.Author.Name)</div>
         <p class="card-text mb-auto">@item.Text.Substring(0, 400)...</p>
     </div>
     <div class="col-auto d-none d-lg-block">
