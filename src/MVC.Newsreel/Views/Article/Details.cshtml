@@ -34,7 +34,7 @@
 <form method="post" asp-controller="Comment" asp-action="Create">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="Text" class="control-label"></label>
+        <label class="control-label">Текст</label>
         <textarea name="Text" id="output" class="form-control commentinput"></textarea>
         <span asp-validation-for="Text" class="text-danger"></span>
     </div>
@@ -45,7 +45,7 @@
     <input asp-for="ArticleId" value="@Model.ArticleId" readonly hidden/>
     <span asp-validation-for="ArticleId" class="text-danger"></span>
     <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
+        <input type="submit" value="Додати" class="btn btn-primary" />
     </div>
 </form>
 </div>

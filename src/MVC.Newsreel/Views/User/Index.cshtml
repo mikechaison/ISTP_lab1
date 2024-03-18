@@ -40,34 +40,6 @@
         <div id="countByAuthorChart"></div>
     </div>
 </div>
-@section Scripts
-{
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawCharts);
-    function drawCharts() {
-        fetch('/api/charts/countByAuthor')
-        .then(response => response.json())
-        .then(data => { 
-            const dataTable = new google.visualization.DataTable();
-            dataTable.addColumn('string', 'Редактор');
-            dataTable.addColumn('number', 'Кількість статей');
-            data.forEach(item => {
-                dataTable.addRow([item.author, item.count]);
-            });
-            const options = {
-                title: 'Статті за редакторами',
-                width: 750,
-                height: 500,
-                legend: { position: 'none' },
-            };
-            const chart = new google.visualization.ColumnChart(document.getElementById('countByAuthorChart'));
-            chart.draw(dataTable, options);
-        });
-    }
-</script>
-}
 
 </body>
 </html>

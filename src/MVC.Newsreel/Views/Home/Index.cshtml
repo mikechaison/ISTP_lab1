@@ -1,8 +1,95 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<MVC.Newsreel.Data.Article>
 
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>CyberBanderka</title>
+</head>
+
+<body>
 <div class="text-center">
     <h1 class="display-4">Ласкаво просимо до CyberBanderka!</h1>
     <p>CyberBanderka - нова IT-спільнота України</p>
+    <h3 class="display-4">Останні статті</h3>
+    <div class="home-container">
+    @foreach (var item in Model){
+    <div class="card mb-4 shadow-sm">
+    <img src="@Html.DisplayFor(modelItem => item.Image)" class="card-img" alt="...">
+    <div class="card-body">
+        <a asp-controller="Article" asp-action="Details" asp-route-id="@item.ArticleId">
+                <h3 class="mb-0">@Html.DisplayFor(modelItem => item.Title)</h3></a>
+    </div>
+    </div>
+    }
+    </div>
+    <h3 class="display-4">Статистика сайту</h3>
+    
+    
+    @section Scripts
+    {
+    <div class="stats-container">
+    <div id="countByCategoryChart">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawCharts);
+        function drawCharts() {
+            fetch('/api/charts/countByCategory')
+            .then(response => response.json())
+            .then(data => { 
+                const dataTable = new google.visualization.DataTable();
+                dataTable.addColumn('string', 'Категорія');
+                dataTable.addColumn('number', 'Кількість статей');
+                data.forEach(item => {
+                    dataTable.addRow([item.category, item.count]);
+                });
+                const options = {
+                    title: 'Статті за категоріями',
+                    titleTextStyle: {color: '#424656', fontSize: 18},
+                    width: 750,
+                    height: 500,
+                    legend: { position: 'none' },
+                    backgroundColor: '#F0FAFF',
+                    colors: ['#80B2C9']
+                };
+                const chart = new google.visualization.ColumnChart(document.getElementById('countByCategoryChart'));
+                chart.draw(dataTable, options);
+            });
+        }
+    </script>
+    </div>
+    <div id="countByAuthorChart">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawCharts);
+        function drawCharts() {
+            fetch('/api/charts/countByAuthor')
+            .then(response => response.json())
+            .then(data => { 
+                const dataTable = new google.visualization.DataTable();
+                dataTable.addColumn('string', 'Редактор');
+                dataTable.addColumn('number', 'Кількість статей');
+                data.forEach(item => {
+                    dataTable.addRow([item.author, item.count]);
+                });
+                const options = {
+                    title: 'Топ-5 редакторів за кількістю статей',
+                    titleTextStyle: {color: '#424656', fontSize: 18},
+                    width: 750,
+                    height: 500,
+                    legend: { position: 'none' },
+                    backgroundColor: '#F0FAFF',
+                    colors: ['#80B2C9']
+                };
+                const chart = new google.visualization.ColumnChart(document.getElementById('countByAuthorChart'));
+                chart.draw(dataTable, options);
+            });
+        }
+    </script>
+    </div>
+    </div>
+    }
 </div>
+</body>

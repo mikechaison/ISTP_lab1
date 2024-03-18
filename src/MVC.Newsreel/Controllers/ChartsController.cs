@@ -33,12 +33,16 @@ public class ChartsController : ControllerBase
     [HttpGet("countByAuthor")]
     public async Task<JsonResult> GetCountByAuthorAsync(CancellationToken cancellationToken)
     {
-        var responseItems = await lab1DbContext
+        var responseItems = lab1DbContext
         .Articles
         .GroupBy(article => article.Author.Name)
         .Select(group => new
         CountByAuthorName(group.Key.ToString(), group.Count()))
-        .ToListAsync(cancellationToken);
+        .AsEnumerable()
+        .OrderByDescending(group => group.Count)
+        .Take(5)
+        .ToList();
+
         return new JsonResult(responseItems);
     }
 }

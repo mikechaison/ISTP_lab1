@@ -25,7 +25,7 @@ namespace MVC.Newsreel.Controllers_
         // GET: Article
         public async Task<IActionResult> Index()
         {
-            var lab1dbContext = _context.Articles.Include(a => a.Author).Include(a => a.Category);
+            var lab1dbContext = _context.Articles.OrderByDescending(a => a.PubDate).Include(a => a.Author).Include(a => a.Category);
             return View(await lab1dbContext.ToListAsync());
         }
 
