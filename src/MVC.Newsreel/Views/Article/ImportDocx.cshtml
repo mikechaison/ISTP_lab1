@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Створити</title>
+</head>
+
+<body>
+<div class="row">
+    <div class="col-12">
+        @using (Html.BeginForm("ImportDocx", "Article",
+        FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div class="mb-3">
+                <label for="file" class="formlabel"> Оберіть файл для заватаження</label>
+                <input type="file" name="file" id="file" />
+            </div>
+            <div>
+                <input class="btn btn-primary mb-3" type="submit" value="Завантажити" />
+            </div>
+        }
+    </div>
+</div>
+</body>

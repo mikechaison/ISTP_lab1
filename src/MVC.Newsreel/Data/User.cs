@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace MVC.Newsreel.Data;
 
@@ -18,4 +19,9 @@ public partial class User
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
     public virtual ICollection<Like> Likes { get; set; } = new List<Like>();
+
+    public static implicit operator Author?(User? v)
+    {
+        throw new NotImplementedException();
+    }
 }

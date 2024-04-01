@@ -16,32 +16,32 @@
         <form method="post" enctype="multipart/form-data" asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
+                <label class="control-label">Заголовок</label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AuthorId" class="control-label"></label>
+                <label class="control-label">Автор</label>
                 <select asp-for="AuthorId" class ="form-control" asp-items="ViewBag.AuthorId"></select>
             </div>
             <div class="form-group">
-                <label asp-for="SuggestedCategoryId" class="control-label"></label>
+                <label class="control-label">Запропонована категорія</label>
                 <select asp-for="SuggestedCategoryId" class ="form-control" asp-items="ViewBag.SuggestedCategoryId"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
+                <label class="control-label">Текст</label>
                 <textarea asp-for="Text" class="form-control textinput"></textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ImageFile" class="control-label"></label>
+                <label class="control-label">Зображення</label>
                 <div>
                 <input asp-for="ImageFile" class="custom-file-input" />
                 </div>
                 <span asp-validation-for="ImageFile" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Додати" class="btn btn-primary" />
             </div>
         </form>
     </div>

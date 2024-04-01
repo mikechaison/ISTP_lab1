@@ -38,6 +38,11 @@ div.artreq-container{
   flex-wrap: wrap;
 }
 
+div.center-align{
+  width: 1000px;
+  margin-left: 140px;
+}
+
 div.artreq-card-body{
   flex: 0 0 auto;
   height: 180px;
@@ -154,4 +159,8 @@ div.mb-4:hover{
 
 h3.display-4{
   font-size: 48px;
+}
+
+.article-text{
+  font-size: 20px;
 }

@@ -14,18 +14,19 @@
     </script>
 </head>
 <body>
-<div align="center">
-    <img src="@Html.DisplayFor(model => model.Image)" width="840" height="480" alt="Нема картинки :(" class="illustrate">
-</div>
-</div>
+<div class="center-align">
+    <div align="center">
+    <img src="@Html.DisplayFor(model => model.Image)" width="840" height="480" alt="Нема картинки :(" >
+    </div>
 <div>
     <h1>@Html.DisplayFor(model => model.Title)</h1>
     <div class="text-body-caption">@Html.DisplayFor(model => model.PubDate) | @Html.DisplayFor(model => model.Author.Name) | <strong>@Html.DisplayFor(model => model.Category.Name)</strong></div>
-    <p>@Html.DisplayFor(model => model.Text)</p>
+    <p class="article-text">@Html.DisplayFor(model => model.Text)</p>
     <div class="like-container">
         @Html.DisplayFor(model=>model.Likes)<button class="like-button">👍</button>
         @Html.DisplayFor(model=>model.Dislikes)<button class="like-button">👎</button>
     </div>
+    <p>Експортувати в <a asp-action="ExportDocx" asp-route-id="@Context.Request.RouteValues["id"]">DOCX</a> | <a>PDF</a></p>
 </div>
 <h3>Коментарі</h3>
 <h5>Додати коментар</h5>
@@ -39,7 +40,7 @@
         <span asp-validation-for="Text" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="AuthorId" class="control-label"></label>
+        <label class="control-label">Автор</label>
         <select asp-for="AuthorId" class ="form-control" asp-items="ViewBag.AuthorId"></select>
     </div>
     <input asp-for="ArticleId" value="@Model.ArticleId" readonly hidden/>
@@ -68,6 +69,7 @@
     <a asp-action="Edit" asp-route-id="@Model?.ArticleId">Змінити</a> |
     <a asp-action="Delete" asp-route-id="@Model?.ArticleId">Видалити</a> |
     <a asp-action="Index">Назад</a>
+</div>
 </div>
 </body>
 </html>

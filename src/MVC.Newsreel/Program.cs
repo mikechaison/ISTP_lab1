@@ -2,6 +2,10 @@ using MVC.Newsreel.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using MVC.Newsreel.Services;
+using MVC.Newsreel.Data.Identity;
+using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +15,14 @@ builder.Services.AddDbContext<Lab1dbContext>(options =>
     {options.UseSqlServer(builder.Configuration.GetConnectionString("Lab1dbContext"));
     options.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored));
     });
-
+builder.Services.AddDbContext<ApplicationIdentityContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString(nameof(ApplicationIdentityContext)),
+sqlOptions => sqlOptions.MigrationsAssembly(typeof(Program).GetTypeInfo().Assembly.GetName().Name)));
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
+options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<ApplicationIdentityContext>();
+builder.Services.AddTransient<ArticleDataPortServiceFactory>();
+builder.Services.AddTransient<ArticleImportService>();
+builder.Services.AddTransient<ArticleExportService>();
 
 var app = builder.Build();
 

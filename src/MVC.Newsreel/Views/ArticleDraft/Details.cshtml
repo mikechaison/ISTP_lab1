@@ -9,18 +9,19 @@
     <title>@Html.DisplayFor(model => model.Title)</title>
 </head>
 <body>
+<div class="center-align">
 <div align="center">
     <img src="@Html.DisplayFor(model => model.Image)" width="840" height="480" class="illustrate" alt="Нема картинки :(">
-</div>
 </div>
 <div>
     <h1>@Html.DisplayFor(model => model.Title)</h1>
     <div class="text-body-caption">@Html.DisplayFor(model => model.Author.Name) | <strong>@Html.DisplayFor(model => model.SuggestedCategory.Name)</strong></div>
-    <p>@Html.DisplayFor(model => model.Text)</p>
+    <p class="article-text">@Html.DisplayFor(model => model.Text)</p>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ArticleDraftId">Змінити</a> |
     <a asp-action="Index">Назад</a>
+</div>
 </div>
 </body>
 </html>
