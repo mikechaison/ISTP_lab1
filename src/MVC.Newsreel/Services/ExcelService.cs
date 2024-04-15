@@ -55,7 +55,6 @@ public class ArticleImportService : IImportService<Article>
     {
         var articleTitle = GetArticleTitle(row);
         var articleText = GetArticleText(row);
-        //var articleImage = GetArticleImage(row);
         var article = await context.Articles.FirstOrDefaultAsync(article
         => article.Title.Contains(articleTitle), cancellationToken);
         if (article is null)
@@ -65,20 +64,15 @@ public class ArticleImportService : IImportService<Article>
                 Title = articleTitle, 
                 Text = articleText, 
                 PubDate = DateTime.UtcNow
-                //Image = articleImage
             };
             context.Add(article);
-        }
-        /*if (article.Author is null)
-        {
-            var author = await GetAuthorAsync(row, cancellationToken);
-            article.SetAuthor(author);
         }
         if (article.Category is null)
         {
             var category = await GetCategoryAsync(row, cancellationToken);
-            article.SetCategory(category);
-        }*/
+            article.Category = category;
+            article.CategoryId = category.CategoryId;
+        }
     }
 
     private static string GetArticleTitle(IXLRow row)
@@ -91,20 +85,9 @@ public class ArticleImportService : IImportService<Article>
         return row.Cell(2).GetValue<string>();
     }
 
-    private static string GetArticleImage(IXLRow row)
-    {
-        return row.Cell(6).GetValue<string>();
-    }
-
-    private static DateTime GetReleaseDate(IXLRow row)
-    {
-        return DateTime.ParseExact(row.Cell(3).GetValue<string>(),
-        "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None);
-    }
-
     private async Task<Category> GetCategoryAsync(IXLRow row, CancellationToken cancellationToken)
     {
-        var name = row.Cell(5).GetValue<string>();
+        var name = row.Cell(3).GetValue<string>();
         Category? category = await context.Categories.FirstOrDefaultAsync(category =>
         category.Name == name, cancellationToken);
         if (category is null)
@@ -116,22 +99,6 @@ public class ArticleImportService : IImportService<Article>
             return category;
         }
         return category;
-    }
-
-    private async Task<Author> GetAuthorAsync(IXLRow row, CancellationToken cancellationToken)
-    {
-        var name = row.Cell(4).GetValue<string>();
-        Author? author = await context.Users.FirstOrDefaultAsync(author =>
-        author.Name == name, cancellationToken);
-        if (author is null)
-        {
-            author = new User{
-                Name = name
-            };
-            context.Add(author);
-            return author;
-        }
-        return author;
     }
 
 }
@@ -168,7 +135,7 @@ public class ArticleExportService : IExportService<Article>
     private static readonly IReadOnlyList<string> HeaderNames = new string[]
     {
         "Назва",
-        "Текст",
+        "Посилання",
         "Дата",
         "Автор",
         "Категорія"
@@ -186,7 +153,9 @@ public class ArticleExportService : IExportService<Article>
     {
         var columnIndex = 1;
         worksheet.Cell(rowIndex, columnIndex++).Value = article.Title;
-        worksheet.Cell(rowIndex, columnIndex++).Value = article.Text;
+        worksheet.Cell(rowIndex, columnIndex).Value = "http://localhost:5166/Article/Details/"+article.ArticleId.ToString();
+        worksheet.Cell(rowIndex, columnIndex).SetHyperlink(new XLHyperlink("http://localhost:5166/Article/Details/"+article.ArticleId.ToString()));
+        columnIndex++;
         worksheet.Cell(rowIndex, columnIndex++).Value = article.PubDate;
         if (article.Author != null){
             worksheet.Cell(rowIndex, columnIndex).Value = article.Author.Name;

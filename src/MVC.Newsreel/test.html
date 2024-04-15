@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preserve Paragraph Formatting</title>
+<script>
+    function formatText() {
+        var textareaValue = document.getElementById("textarea").value;
+        var paragraphs = textareaValue.split("\n");
+        var result = "";
+        for (var i = 0; i < paragraphs.length; i++) {
+            result += "<p>" + paragraphs[i] + "</p>";
+        }
+        document.getElementById("formattedText").innerHTML = result;
+    }
+</script>
+</head>
+<body>
+
+<textarea id="textarea" rows="10" cols="50"></textarea><br>
+<button onclick="formatText()">Format Text</button>
+
+<div id="formattedText"></div>
+
+</body>
+</html>

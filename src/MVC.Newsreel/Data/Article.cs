@@ -17,16 +17,15 @@ public partial class Article
 
     public string Text { get; set; } = null!;
 
-    public int? Likes { get; set; } = null;
+    public int? Likes { get; set; } = 0;
 
-    public int? Dislikes { get; set; } = null;
+    public int? Dislikes { get; set; } = 0;
 
     public DateTime? PubDate { get; set; } = null;
 
     public string? Image { get; set; } = null;
 
     [NotMapped]
-    [Required]
     public IFormFile? ImageFile {get; set;} = null;
 
     public virtual ICollection<ArticleRequest> ArticleRequests { get; set; } = new List<ArticleRequest>();

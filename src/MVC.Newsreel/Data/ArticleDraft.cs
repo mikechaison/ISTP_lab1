@@ -20,7 +20,6 @@ public partial class ArticleDraft
     public string? Image { get; set; } = null!;
 
     [NotMapped]
-    [Required]
     public IFormFile? ImageFile {get; set;} = null;
 
     public virtual ICollection<ArticleRequest> ArticleRequests { get; set; } = new List<ArticleRequest>();

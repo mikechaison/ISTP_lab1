@@ -17,16 +17,6 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ArticleRequestId" />
             <div class="form-group">
-                <label class="control-label">Автор</label>
-                <select asp-for="AuthorId" class="form-control" asp-items="ViewBag.AuthorId"></select>
-                <span asp-validation-for="AuthorId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Чорнова стаття</label>
-                <select asp-for="ArticleDraftId" class="form-control" asp-items="ViewBag.ArticleDraftId"></select>
-                <span asp-validation-for="ArticleDraftId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label class="control-label">Статус</label>
                 <input asp-for="Status" class="form-control" />
                 <span asp-validation-for="Status" class="text-danger"></span>

@@ -16,10 +16,32 @@
 <div>
     <h1>@Html.DisplayFor(model => model.Title)</h1>
     <div class="text-body-caption">@Html.DisplayFor(model => model.Author.Name) | <strong>@Html.DisplayFor(model => model.SuggestedCategory.Name)</strong></div>
-    <p class="article-text">@Html.DisplayFor(model => model.Text)</p>
+    <div id="article-txt">
+        @Model.Text
+    </div>
+    <script>
+        function formatText() {
+            var textareaValue = document.getElementById("article-txt").innerHTML;
+            var paragraphs = textareaValue.split("\n");
+            var result = "";
+            for (var i = 0; i < paragraphs.length; i++) {
+                result += "<p class='article-text'>" + paragraphs[i] + "</p>";
+            }
+            document.getElementById("article-txt").innerHTML = result;
+        }
+        window.onload = formatText;
+    </script>
 </div>
+@{
+@if (User.IsInRole("admin") || User.Identity.Name == @Model?.Author.UserName)
+{
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ArticleDraftId">Змінити</a> |
+    <a asp-action="Delete" asp-route-id="@Model?.ArticleDraftId">Видалити</a>
+</div>
+}
+}
+<div>
     <a asp-action="Index">Назад</a>
 </div>
 </div>

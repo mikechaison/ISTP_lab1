@@ -8,8 +8,16 @@
     <title>Статті</title>
 </head>
 <body>
+
+@{
+    if (User.IsInRole("admin")){
+        <p>
+        <a asp-action="Create">Додати нову статтю</a> | <a asp-action="Import">Імпортувати статті</a>
+        </p>
+    }
+}
 <p>
-    <a asp-action="Create">Додати нову статтю</a> | <a asp-action="Import">Імпортувати статті</a> | <a asp-action="Export">Експортувати статті в XSLX</a>
+    <a asp-action="Export">Експортувати статті в XSLX</a>
 </p>
 
 @foreach (var item in Model) {

@@ -14,9 +14,9 @@ public partial class Comment
 
     public int? ArticleId { get; set; } = null!;
 
-    public int Likes { get; set; }
+    public int Likes { get; set; } = 0;
 
-    public int Dislikes { get; set; }
+    public int Dislikes { get; set; } = 0;
 
     public DateTime? PubDate { get; set; } = null!;
 

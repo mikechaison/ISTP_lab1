@@ -1,0 +1,26 @@
+@model MVC.Newsreel.ViewModel.LoginViewModel
+<h2>Вхід в CyberBanderka</h2>
+<form method="post" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div>
+        <label asp-for="UserName"></label><br />
+        <input asp-for="UserName" />
+        <span asp-validation-for="UserName"></span>
+    </div>
+    <div>
+        <label asp-for="Password"></label><br />
+        <input asp-for="Password" />
+        <span asp-validation-for="Password"></span>
+    </div>
+    <div>
+        <label asp-for="RememberMe"></label><br />
+        <input asp-for="RememberMe" />
+    </div>
+    <div>
+        <label>Немає акаунту?</label>
+        <a asp-controller="Account" asp-action="Register">Реєструйся</a>
+    </div>
+    <div>
+        <input type="submit" value="Увійти" />
+    </div>
+</form>

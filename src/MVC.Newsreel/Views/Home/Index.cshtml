@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<MVC.Newsreel.Data.Article>
 
+
+
 <!DOCTYPE html>
 
 <html>
@@ -7,10 +9,25 @@
     <title>CyberBanderka</title>
 </head>
 
+@if(User.Identity.IsAuthenticated)
+{
+    <div>
+    <p>@User.Identity.Name</p>
+    <form method="post" asp-controller="Account" asp-action="Logout">
+        <input type="submit" value="Вихід" class="btn btn-primary"/>
+    </form>
+    </div>
+}
+else
+{
+    <a asp-controller="Account" asp-action="Login">Вхід</a>
+    <a asp-controller="Account" asp-action="Register">Реєстрація</a>
+}
+
 <body>
 <div class="text-center">
     <h1 class="display-4">Ласкаво просимо до CyberBanderka!</h1>
-    <p>CyberBanderka - нова IT-спільнота України</p>
+    <p>CyberBanderka - нова українська IT-спільнота. Тут народжується технологічне майбутнє України!</p>
     <h3 class="display-4">Останні статті</h3>
     <div class="home-container">
     @foreach (var item in Model){

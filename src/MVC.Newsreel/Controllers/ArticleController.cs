@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MVC.Newsreel.Data;
 using MVC.Newsreel.Services;
-using MVC.Newsreel.Helper;
 
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -11,6 +10,8 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 using A = DocumentFormat.OpenXml.Drawing;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVC.Newsreel.Controllers_
 {
@@ -19,14 +20,17 @@ namespace MVC.Newsreel.Controllers_
         private readonly Lab1dbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ArticleDataPortServiceFactory _articleDataPortServiceFactory;
+        UserManager<User> _userManager;
 
         public ArticleController(Lab1dbContext context,
                                 IWebHostEnvironment webHostEnvironment,
-                                ArticleDataPortServiceFactory articleDataPortServiceFactory)
+                                ArticleDataPortServiceFactory articleDataPortServiceFactory,
+                                UserManager<User> userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _articleDataPortServiceFactory = articleDataPortServiceFactory;
+            _userManager = userManager;
         }
 
         // GET: Article
@@ -63,6 +67,50 @@ namespace MVC.Newsreel.Controllers_
 
             ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title");
             ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name");
+            var user = await _userManager.GetUserAsync(User);
+            var UserId = user.Id;
+
+            var like  = await _context.Likes.FirstOrDefaultAsync(like => like.ArticleId == id && like.UserId == UserId);
+
+            ViewData["IsLiked"] = true;
+            if (like == null || (like != null && like.IsDis == true))
+            {
+                ViewData["IsLiked"] =  false;
+            }
+
+            ViewData["IsDisliked"] = true;
+            if (like == null || (like != null && like.IsDis == false))
+            {
+                ViewData["IsDisliked"] =  false;
+            }
+
+            var comments  = article.Comments;
+
+            var commentLikes = new List<bool>();
+            var commentDislikes = new List<bool>();
+            foreach (var comment in comments)
+            {
+                
+                var comlike  = await _context.Likes.FirstOrDefaultAsync(like => like.CommentId == comment.CommentId && like.UserId == UserId);
+
+                var commentLike = true;
+                if (comlike == null || (comlike != null && comlike.IsDis == true))
+                {
+                    commentLike = false;
+                }
+
+                var commentDislike = true;
+                if (comlike == null || (comlike != null && comlike.IsDis == false))
+                {
+                    commentDislike = false;
+                }
+
+                commentLikes.Add(commentLike);
+                commentDislikes.Add(commentDislike);
+            }
+
+            ViewData["IsCommentLiked"] = commentLikes;
+            ViewData["IsCommentDisliked"] = commentDislikes;
 
             return View(article);
         }
@@ -94,6 +142,8 @@ namespace MVC.Newsreel.Controllers_
                     await article.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
                 }
                 article.PubDate=DateTime.UtcNow;
+                var user = await _userManager.GetUserAsync(User);
+                article.AuthorId=user.Id;
                 _context.Add(article);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -135,6 +185,16 @@ namespace MVC.Newsreel.Controllers_
 
             if (ModelState.IsValid)
             {
+                var our_article = _context.Articles.AsNoTracking().Where(x => x.ArticleId == id).FirstOrDefault();
+                article.PubDate = our_article.PubDate;
+                article.AuthorId = our_article.AuthorId;
+                article.Author = _context.Users.AsNoTracking().Where(x => x.Id == our_article.AuthorId).FirstOrDefault();
+                var list = article.Text.Split("\n");
+                var formattedText = "";
+                foreach (string i in list)
+                {
+                    formattedText+= "<p>" + i + "</p>";
+                }
                 if (article.ImageFile != null)
                 {
                     string folder = "static/images/Article/";
@@ -144,9 +204,12 @@ namespace MVC.Newsreel.Controllers_
 
                     await article.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
                 }
+                else
+                {
+                    article.Image = our_article.Image;
+                }
                 try
                 {
-                    article.PubDate=DateTime.UtcNow;
                     _context.Update(article);
                     await _context.SaveChangesAsync();
                 }
@@ -227,10 +290,6 @@ namespace MVC.Newsreel.Controllers_
         public async Task<IActionResult> ExportDocx(int? id, [FromQuery] string
         contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document", CancellationToken cancellationToken = default)
         {
-            /*var exportService = _articleDataPortServiceFactory.GetExportService(contentType);
-            var memoryStream = new MemoryStream();
-            await exportService.WriteToAsync(memoryStream, cancellationToken);
-            await memoryStream.FlushAsync(cancellationToken);*/
             MemoryStream stream = new MemoryStream();
 
             var article = await _context.Articles
@@ -341,15 +400,23 @@ namespace MVC.Newsreel.Controllers_
         public async Task<IActionResult> ImportDocx(IFormFile file,
         CancellationToken cancellationToken)
         {
-            string fileName = await FileHelper.Upload(file);
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "uploads", fileName);
+            MemoryStream ms = new MemoryStream();
+            await file.CopyToAsync(ms);
 
-            var word = WordprocessingDocument.Open(path, true);
+            var word = WordprocessingDocument.Open(ms, true);
             var paragraphs = word.MainDocumentPart.Document.Body.Descendants<Paragraph>().ToList();
             var img = word.MainDocumentPart.ImageParts.FirstOrDefault();
-            var title = paragraphs[0].InnerText;
+            var title = paragraphs[1].InnerText;
+            var category_text = paragraphs[2].InnerText;
+            var category = _context.Categories.Where(c => c.Name == category_text).FirstOrDefault();
+            var category_id = 1;
+            if (category != null)
+            {
+                category_id = category.CategoryId;
+            }
+            var art_category = _context.Categories.Where(c => c.CategoryId == category_id).FirstOrDefault();
             var text = "";
-            for (int i = 1; i<paragraphs.Count(); i++)
+            for (int i = 3; i<paragraphs.Count(); i++)
             {
                 text+=paragraphs[i].InnerText+"\n";
             }
@@ -358,13 +425,15 @@ namespace MVC.Newsreel.Controllers_
             {
                 Title = title,
                 Text = text,
-                PubDate = DateTime.UtcNow
+                PubDate = DateTime.UtcNow,
+                CategoryId = category_id,
+                Category = art_category
             };
 
             var stream = img.GetStream();
 
             IFormFile imageFile = new FormFile(stream, 0, stream.Length, 
-            "name", "imported_"+Guid.NewGuid().ToString());
+            "name", "imported_"+Guid.NewGuid().ToString()+".jpg");
 
             article.ImageFile = imageFile;
 
@@ -378,6 +447,147 @@ namespace MVC.Newsreel.Controllers_
             _context.Add(article);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> LikeAction(int articleId, int UserId)
+        {
+            var like  = await _context.Likes.FirstOrDefaultAsync(like => like.ArticleId == articleId && like.UserId == UserId);
+            var article = await _context.Articles.FirstOrDefaultAsync(b => b.ArticleId == articleId);
+            if(article != null && like != null && !like.IsDis)
+            {
+                article.Likes--;
+                _context.Likes.Remove(like);
+            }
+            else if(article != null && like != null && like.IsDis)
+            {
+                article.Dislikes--;
+                article.Likes++;
+                like.IsDis = false;
+                _context.Likes.Update(like);
+            }
+            else if(article != null && like == null)
+            {
+                article.Likes++;
+                var AddLike = new Like
+                {
+                    ArticleId = articleId,
+                    UserId = UserId,
+                    User = await _userManager.FindByIdAsync(Convert.ToString(UserId)),
+                    Article = article,
+                    IsDis = false
+                };
+                await _context.Likes.AddAsync(AddLike);
+            }
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DislikeAction(int articleId, int UserId)
+        {
+            var like  = await _context.Likes.FirstOrDefaultAsync(like => like.ArticleId == articleId && like.UserId == UserId);
+            var article = await _context.Articles.FirstOrDefaultAsync(b => b.ArticleId == articleId);
+            if(article != null && like != null && like.IsDis)
+            {
+                article.Dislikes--;
+                _context.Likes.Remove(like);
+            }
+            else if(article != null && like != null && !like.IsDis)
+            {
+                article.Dislikes++;
+                article.Likes--;
+                like.IsDis = true;
+                _context.Likes.Update(like);
+            }
+            else if(article != null && like == null)
+            {
+                article.Dislikes++;
+                var AddLike = new Like
+                {
+                    ArticleId = articleId,
+                    UserId = UserId,
+                    User = await _userManager.FindByIdAsync(Convert.ToString(UserId)),
+                    Article = article,
+                    IsDis = true
+                };
+                await _context.Likes.AddAsync(AddLike);
+            }
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> LikeCommentAction(int commentId, int UserId)
+        {
+            var like  = await _context.Likes.FirstOrDefaultAsync(like => like.CommentId == commentId && like.UserId == UserId);
+            var comment = await _context.Comments.FirstOrDefaultAsync(b => b.CommentId == commentId);
+            if(comment != null && like != null && !like.IsDis)
+            {
+                comment.Likes--;
+                _context.Likes.Remove(like);
+            }
+            else if(comment != null && like != null && like.IsDis)
+            {
+                comment.Dislikes--;
+                comment.Likes++;
+                like.IsDis = false;
+                _context.Likes.Update(like);
+            }
+            else if(comment != null && like == null)
+            {
+                comment.Likes++;
+                var AddLike = new Like
+                {
+                    CommentId = commentId,
+                    UserId = UserId,
+                    User = await _userManager.FindByIdAsync(Convert.ToString(UserId)),
+                    Comment = comment,
+                    IsDis = false
+                };
+                await _context.Likes.AddAsync(AddLike);
+            }
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DislikeCommentAction(int commentId, int UserId)
+        {
+            var like  = await _context.Likes.FirstOrDefaultAsync(like => like.CommentId == commentId && like.UserId == UserId);
+            var comment = await _context.Comments.FirstOrDefaultAsync(b => b.CommentId == commentId);
+            if(comment != null && like != null && like.IsDis)
+            {
+                comment.Dislikes--;
+                _context.Likes.Remove(like);
+            }
+            else if(comment != null && like != null && !like.IsDis)
+            {
+                comment.Dislikes++;
+                comment.Likes--;
+                like.IsDis = true;
+                _context.Likes.Update(like);
+            }
+            else if(comment != null && like == null)
+            {
+                comment.Dislikes++;
+                var AddLike = new Like
+                {
+                    CommentId = commentId,
+                    UserId = UserId,
+                    User = await _userManager.FindByIdAsync(Convert.ToString(UserId)),
+                    Comment = comment,
+                    IsDis = true
+                };
+                await _context.Likes.AddAsync(AddLike);
+            }
+            await _context.SaveChangesAsync();
+            return Json(new { success = true });
         }
     }
 }

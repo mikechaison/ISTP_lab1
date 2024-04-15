@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +9,12 @@ namespace MVC.Newsreel.Controllers_
     public class ArticleRequestController : Controller
     {
         private readonly Lab1dbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public ArticleRequestController(Lab1dbContext context)
+        public ArticleRequestController(Lab1dbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: ArticleRequest
@@ -49,9 +48,15 @@ namespace MVC.Newsreel.Controllers_
         // GET: ArticleRequest/Create
         public IActionResult Create()
         {
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title");
-            ViewData["ArticleDraftId"] = new SelectList(_context.ArticleDrafts, "ArticleDraftId", "Title");
-            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name");
+            var userName = _userManager.GetUserName(User);
+            var userArticles = _context.Articles
+                                .Include(a => a.Author)
+                                .Where(a => a.Author.UserName == userName);
+            var userArticleDrafts = _context.ArticleDrafts
+                                .Include(a => a.Author)
+                                .Where(a => a.Author.UserName == userName);
+            ViewData["ArticleId"] = new SelectList(userArticles, "ArticleId", "Title");
+            ViewData["ArticleDraftId"] = new SelectList(userArticleDrafts, "ArticleDraftId", "Title");
             return View();
         }
 
@@ -62,16 +67,22 @@ namespace MVC.Newsreel.Controllers_
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ArticleRequestId,AuthorId,ArticleDraftId,ArticleId,Status")] ArticleRequest articleRequest)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (ModelState.IsValid)
             {
                 articleRequest.Status="Checking";
+                articleRequest.AuthorId = user.Id;
                 _context.Add(articleRequest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleRequest.ArticleId);
-            ViewData["ArticleDraftId"] = new SelectList(_context.ArticleDrafts, "ArticleDraftId", "ArticleDraftId", articleRequest.ArticleDraftId);
-            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "UserId", articleRequest.AuthorId);
+            var userId = user.Id;
+            var userArticles = _context.Articles.
+                                Where(a => a.AuthorId == userId);
+            var userArticleDrafts = _context.ArticleDrafts.
+                                Where(a => a.AuthorId == userId);
+            ViewData["ArticleId"] = new SelectList(userArticles, "ArticleId", "ArticleId", articleRequest.ArticleId);
+            ViewData["ArticleDraftId"] = new SelectList(userArticleDrafts, "ArticleDraftId", "ArticleDraftId", articleRequest.ArticleDraftId);
             return View(articleRequest);
         }
 
@@ -88,9 +99,12 @@ namespace MVC.Newsreel.Controllers_
             {
                 return NotFound();
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title", articleRequest.ArticleId);
-            ViewData["ArticleDraftId"] = new SelectList(_context.ArticleDrafts, "ArticleDraftId", "Title", articleRequest.ArticleDraftId);
-            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name", articleRequest.AuthorId);
+            var userArticles = _context.Articles.
+                                Where(a => a.AuthorId == articleRequest.AuthorId);
+            var userArticleDrafts = _context.ArticleDrafts.
+                                Where(a => a.AuthorId == articleRequest.AuthorId);
+            ViewData["ArticleId"] = new SelectList(userArticles, "ArticleId", "Title", articleRequest.ArticleId);
+            ViewData["ArticleDraftId"] = new SelectList(userArticleDrafts, "ArticleDraftId", "Title", articleRequest.ArticleDraftId);
             return View(articleRequest);
         }
 
@@ -146,9 +160,12 @@ namespace MVC.Newsreel.Controllers_
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "ArticleId", articleRequest.ArticleId);
-            ViewData["ArticleDraftId"] = new SelectList(_context.ArticleDrafts, "ArticleDraftId", "ArticleDraftId", articleRequest.ArticleDraftId);
-            ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "UserId", articleRequest.AuthorId);
+            var userArticles = _context.Articles.
+                                Where(a => a.AuthorId == articleRequest.AuthorId);
+            var userArticleDrafts = _context.ArticleDrafts.
+                                Where(a => a.AuthorId == articleRequest.AuthorId);
+            ViewData["ArticleId"] = new SelectList(userArticles, "ArticleId", "ArticleId", articleRequest.ArticleId);
+            ViewData["ArticleDraftId"] = new SelectList(userArticleDrafts, "ArticleDraftId", "ArticleDraftId", articleRequest.ArticleDraftId);
             return View(articleRequest);
         }
 

@@ -39,8 +39,8 @@ div.artreq-container{
 }
 
 div.center-align{
-  width: 1000px;
-  margin-left: 140px;
+  width: 800px;
+  margin-left: 220px;
 }
 
 div.artreq-card-body{
@@ -75,12 +75,7 @@ img.card-img{
 div.artreq-cards{
   border: solid 1px;
   margin-right: 20px;
-  border-radius: 10px;
-}
-
-div.artreq-cards{
-  border: solid 1px;
-  margin-right: 20px;
+  margin-bottom: 20px;
   border-radius: 10px;
 }
 
@@ -109,12 +104,23 @@ tr.border-table{
   height: 200px;
 }
 
+.like-not-fill
+{
+  background-color: #F0FAFF;
+}
+
+.like-fill
+{
+  background-color: #BEE1F2;
+}
+
 .like-button{
   border: #BEE1F2 solid 1px;
-  background-color: #F0FAFF;
   border-radius: 5px;
   margin-left: 10px;
   margin-right: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .like-button:hover{
@@ -163,4 +169,14 @@ h3.display-4{
 
 .article-text{
   font-size: 20px;
+}
+
+.comment-text{
+  font-size: 18px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.comment-date{
+  font-size: 14px;
 }

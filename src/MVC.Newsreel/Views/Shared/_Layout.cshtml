@@ -31,12 +31,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Категорії</a>
                         </li>
+                        @{
+                        if (User.IsInRole("admin") || User.IsInRole("editor")){
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ArticleDraft" asp-action="Index">Чорнові статті</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ArticleRequest" asp-action="Index">Керування статтями</a>
                         </li>
+                        }}
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Правила сайту</a>
                         </li>

@@ -21,7 +21,12 @@ namespace MVC.Newsreel.Controllers_
         // GET: User
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Users.ToListAsync());
+            var users = await (from user in _context.Users
+                        join userRole in _context.UserRoles on user.Id equals userRole.UserId
+                        join role in _context.Roles on userRole.RoleId equals role.Id
+                        where role.Name == "editor"
+                        select user).ToListAsync();
+            return View(users);
         }
 
         // GET: User/Details/5
@@ -33,7 +38,7 @@ namespace MVC.Newsreel.Controllers_
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -51,7 +56,7 @@ namespace MVC.Newsreel.Controllers_
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -106,7 +111,7 @@ namespace MVC.Newsreel.Controllers_
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("UserId,Name")] User user)
         {
-            if (id != user.UserId)
+            if (id != user.Id)
             {
                 return NotFound();
             }
@@ -120,7 +125,7 @@ namespace MVC.Newsreel.Controllers_
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.UserId))
+                    if (!UserExists(user.Id))
                     {
                         return NotFound();
                     }
@@ -143,7 +148,7 @@ namespace MVC.Newsreel.Controllers_
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -169,7 +174,7 @@ namespace MVC.Newsreel.Controllers_
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

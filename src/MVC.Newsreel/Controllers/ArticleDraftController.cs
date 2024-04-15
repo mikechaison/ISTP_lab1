@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,12 +14,15 @@ namespace MVC.Newsreel.Controllers_
     {
         private readonly Lab1dbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly UserManager<User> _userManager;
 
         public ArticleDraftController(Lab1dbContext context,
-                                    IWebHostEnvironment webHostEnvironment)
+                                    IWebHostEnvironment webHostEnvironment,
+                                    UserManager<User> userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _userManager = userManager;
         }
 
         // GET: ArticleDraft
@@ -74,6 +78,8 @@ namespace MVC.Newsreel.Controllers_
 
                     await articleDraft.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
                 }
+                var user = await _userManager.GetUserAsync(User);
+                articleDraft.AuthorId = user.Id;
                 _context.Add(articleDraft);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -115,6 +121,9 @@ namespace MVC.Newsreel.Controllers_
 
             if (ModelState.IsValid)
             {
+                var our_article = _context.ArticleDrafts.AsNoTracking().Where(x => x.ArticleDraftId == id).FirstOrDefault();
+                articleDraft.AuthorId = our_article.AuthorId;
+                articleDraft.Author = _context.Users.AsNoTracking().Where(x => x.Id == our_article.AuthorId).FirstOrDefault();
                 try
                 {
                     if (articleDraft.ImageFile != null)
@@ -125,6 +134,10 @@ namespace MVC.Newsreel.Controllers_
                         string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
 
                         await articleDraft.ImageFile.CopyToAsync(new FileStream(serverFolder, FileMode.Create));
+                    }
+                    else
+                    {
+                        articleDraft.Image = our_article.Image;
                     }
                     _context.Update(articleDraft);
                     await _context.SaveChangesAsync();

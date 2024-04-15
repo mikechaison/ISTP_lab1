@@ -8,9 +8,9 @@
     <title>Редактори</title>
 </head>
 <body>
-<p>
+<!--<p>
     <a asp-action="Create">Додати нового редактора</a>
-</p>
+</p>-->
 <table class="table">
     <thead>
         <tr>
@@ -27,8 +27,8 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                <a asp-action="Details" asp-route-id="@item.UserId">Статті</a> |
-                <a asp-action="Comments" asp-route-id="@item.UserId">Коментарі</a>
+                <a asp-action="Details" asp-route-id="@item.Id">Статті</a> |
+                <a asp-action="Comments" asp-route-id="@item.Id">Коментарі</a>
             </td>
         </tr>
 }
@@ -36,9 +36,7 @@
 </table>
 
 <div class="row">
-    <div class="col-3">
-        <div id="countByAuthorChart"></div>
-    </div>
+    <p>Якщо бажаєте стати редактором - напишіть нам на пошту cyberbanderka.admin@gmail.com!</p>
 </div>
 
 </body>

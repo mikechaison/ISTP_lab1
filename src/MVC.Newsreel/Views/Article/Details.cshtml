@@ -1,4 +1,14 @@
 @model MVC.Newsreel.Data.Article
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<MVC.Newsreel.Data.User> _signInManager
+@inject UserManager<MVC.Newsreel.Data.User> _userManager
+
+@{
+    bool IsLiked = (bool)ViewData["IsLiked"];
+    bool IsDisliked = (bool)ViewData["IsDisliked"];
+    List<bool> IsCommentLiked = (List<bool>)ViewData["IsCommentLiked"];
+    List<bool> IsCommentDisliked = (List<bool>)ViewData["IsCommentDisliked"];
+}
 
 <!DOCTYPE html>
 
@@ -11,6 +21,7 @@
         {
             document.getElementById("output").value='';
         }
+        
     </script>
 </head>
 <body>
@@ -21,14 +32,171 @@
 <div>
     <h1>@Html.DisplayFor(model => model.Title)</h1>
     <div class="text-body-caption">@Html.DisplayFor(model => model.PubDate) | @Html.DisplayFor(model => model.Author.Name) | <strong>@Html.DisplayFor(model => model.Category.Name)</strong></div>
-    <p class="article-text">@Html.DisplayFor(model => model.Text)</p>
-    <div class="like-container">
-        @Html.DisplayFor(model=>model.Likes)<button class="like-button">👍</button>
-        @Html.DisplayFor(model=>model.Dislikes)<button class="like-button">👎</button>
+    <!--<p class="article-text"></p> -->
+    <div id="article-txt">
+        @Model.Text
     </div>
+    <script>
+        function formatText() {
+            var textareaValue = document.getElementById("article-txt").innerHTML;
+            var paragraphs = textareaValue.split("\n");
+            var result = "";
+            for (var i = 0; i < paragraphs.length; i++) {
+                result += "<p class='article-text'>" + paragraphs[i] + "</p>";
+            }
+            document.getElementById("article-txt").innerHTML = result;
+        }
+        window.onload = formatText;
+    </script>
+    <div class="like-container">
+        @if(IsLiked)
+        {
+            <button class="like-button like-fill" data-toggle="button" aria-pressed="false" id="likeButton"
+            onclick="myLikeFunction(this, document.getElementById('likeLabel'), document.getElementById('dislikeButton'), document.getElementById('dislikeLabel'),
+            @Model.ArticleId, @_userManager.GetUserId(User))" data-likes="@Model.Likes">
+            👍
+            </button>
+            <label id="likeLabel">@Model.Likes</label>
+        } else
+        {
+            <button class="like-button like-not-fill" data-toggle="button" aria-pressed="false" id="likeButton"
+            onclick="myLikeFunction(this, document.getElementById('likeLabel'), document.getElementById('dislikeButton'), document.getElementById('dislikeLabel'),
+            @Model.ArticleId, @_userManager.GetUserId(User))" 
+            data-likes="@Model.Likes" disabled="@(!User.Identity.IsAuthenticated)">
+            👍
+            </button>
+            <label id="likeLabel">@Model.Likes</label>
+        }
+
+        @if(IsDisliked)
+        {
+            <button class="like-button like-fill" data-toggle="button" aria-pressed="false" id="dislikeButton"
+            onclick="myDislikeFunction(this, document.getElementById('dislikeLabel'), document.getElementById('likeButton'), document.getElementById('likeLabel'),
+            @Model.ArticleId, @_userManager.GetUserId(User))" data-dislikes="@Model.Dislikes">
+            👎
+            </button>
+            <label id="dislikeLabel">@Model.Dislikes</label>
+        } else
+        {
+            <button class="like-button like-not-fill" data-toggle="button" aria-pressed="false" id="dislikeButton"
+            onclick="myDislikeFunction(this, document.getElementById('dislikeLabel'), document.getElementById('likeButton'), document.getElementById('likeLabel'),
+            @Model.ArticleId, @_userManager.GetUserId(User))" 
+            data-dislikes="@Model.Dislikes" disabled="@(!User.Identity.IsAuthenticated)">
+            👎
+            </button>
+            <label id="dislikeLabel">@Model.Dislikes</label>
+        }
+    </div>
+    
+    <script>
+        function myLikeFunction(x1, y1, x2, y2, articleId, userId) 
+        {
+            console.log("myLikeFunction called with articleId:", articleId, "and userId:", userId);
+            $.ajax({
+                type: "POST",
+                url: "/Article/LikeAction",
+                data: { articleId: articleId, UserId: userId },
+                success: function (response) {
+                    // Update UI if necessary
+                    if (response.success) 
+                    {
+                        var likesCount = parseInt(x1.getAttribute("data-likes"));
+                        var dislikesCount = parseInt(x2.getAttribute("data-dislikes"));
+                        if(x1.classList.contains("like-fill"))
+                        {
+                            x1.classList.remove("like-fill");
+                            x1.classList.add("like-not-fill");
+                            likesCount--;
+                        } else
+                        {
+                            x1.classList.remove("like-not-fill");
+                            x1.classList.add("like-fill");
+                            if (x2.classList.contains("like-fill"))
+                            {
+                                x2.classList.remove("like-fill");
+                                x2.classList.add("like-not-fill");
+                                dislikesCount--;
+                            }
+                            likesCount++;
+                        }
+                        x1.setAttribute("data-likes", likesCount);
+                        x2.setAttribute("data-dislikes", dislikesCount);
+                        y1.textContent = likesCount;
+                        y2.textContent = dislikesCount;
+                    } 
+                    else 
+                    {
+                        // Like action failed
+                        // Handle error if needed
+                    }
+                },
+                error: function (xhr, status, error) 
+                {
+                    // Handle error if AJAX request fails
+                    console.error("AJAX error:", error);
+                    // Optionally, display an error message to the user
+                    alert("An error occurred while processing your request. Please try again later.");
+                }
+            });
+        }
+        function myDislikeFunction(x1, y1, x2, y2, articleId, userId) 
+        {
+            console.log("myDislikeFunction called with articleId:", articleId, "and userId:", userId);
+            $.ajax({
+                type: "POST",
+                url: "/Article/DislikeAction",
+                data: { articleId: articleId, UserId: userId },
+                success: function (response) {
+                    // Update UI if necessary
+                    if (response.success) 
+                    {
+                        var dislikesCount = parseInt(x1.getAttribute("data-dislikes"));
+                        var likesCount = parseInt(x2.getAttribute("data-likes"));
+                        if(x1.classList.contains("like-fill"))
+                        {
+                            x1.classList.remove("like-fill");
+                            x1.classList.add("like-not-fill");
+                            dislikesCount--;
+                        } else
+                        {
+                            x1.classList.remove("like-not-fill");
+                            x1.classList.add("like-fill");
+                            if (x2.classList.contains("like-fill"))
+                            {
+                                x2.classList.remove("like-fill");
+                                x2.classList.add("like-not-fill");
+                                likesCount--;
+                            }
+                            dislikesCount++;
+                        }
+                        x1.setAttribute("data-dislikes", dislikesCount);
+                        x2.setAttribute("data-likes", likesCount);
+                        y1.textContent = dislikesCount;
+                        y2.textContent = likesCount;
+                    } 
+                    else 
+                    {
+                        // Like action failed
+                        // Handle error if needed
+                    }
+                },
+                error: function (xhr, status, error) 
+                {
+                    // Handle error if AJAX request fails
+                    console.error("AJAX error:", error);
+                    // Optionally, display an error message to the user
+                    alert("An error occurred while processing your request. Please try again later.");
+                }
+            });
+        }
+    </script>
+
     <p>Експортувати в <a asp-action="ExportDocx" asp-route-id="@Context.Request.RouteValues["id"]">DOCX</a> | <a>PDF</a></p>
 </div>
 <h3>Коментарі</h3>
+@{
+if (User.IsInRole("user"))
+{
 <h5>Додати коментар</h5>
 <div class="row">
 <div class="col-md-4">
@@ -39,10 +207,6 @@
         <textarea name="Text" id="output" class="form-control commentinput"></textarea>
         <span asp-validation-for="Text" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label class="control-label">Автор</label>
-        <select asp-for="AuthorId" class ="form-control" asp-items="ViewBag.AuthorId"></select>
-    </div>
     <input asp-for="ArticleId" value="@Model.ArticleId" readonly hidden/>
     <span asp-validation-for="ArticleId" class="text-danger"></span>
     <div class="form-group">
@@ -51,23 +215,200 @@
 </form>
 </div>
 </div>
-@foreach (var item in Model.Comments)
+}
+else
 {
+    <p>Для додавання коментаря потрібно 
+        <a asp-controller="Account" asp-action="Login">увійти</a>!</p>
+}
+}
+@for (int i=0; i<Model.Comments.Count(); i++)
+{
+    var item = Model.Comments.ElementAt(i);
     <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
     <div class="col p-4 d-flex flex-column position-static">
         <strong class="d-inline-block mb-2 text-primary-emphasis">@Html.DisplayFor(modelItem => item.Author.Name)</strong>
-        <div class="text-body-caption">@Html.DisplayFor(modelItem => item.PubDate)</div>
-        <p class="card-text mb-auto">@Html.DisplayFor(modelItem => item.Text)</p>
-        <div class="like-container">
-            @Html.DisplayFor(modelItem=>item.Likes)<button class="like-button">👍</button>
-            @Html.DisplayFor(modelItem=>item.Dislikes)<button class="like-button">👎</button>
+        <div class="text-body-caption comment-date">@Html.DisplayFor(modelItem => item.PubDate)</div>
+        <div id="comment-txt">
+            @Html.DisplayFor(modelItem => item.Text)
         </div>
+        <script>
+        function formatText() {
+            var textareaValue = document.getElementById("comment-txt").innerHTML;
+            var paragraphs = textareaValue.split("\n");
+            var result = "";
+            for (var i = 0; i < paragraphs.length; i++) {
+                result += "<p class='card-text mb-auto comment-text'>" + paragraphs[i] + "</p>";
+            }
+            document.getElementById("comment-txt").innerHTML = result;
+        }
+        window.onload = formatText;
+        </script>
+        <div class="like-container">
+            @if(IsCommentLiked[i])
+            {
+                <button class="like-button like-fill" data-toggle="button" aria-pressed="false" id="likeCommentButton@(item.CommentId)"
+                onclick="myLikeCommentFunction(this, document.getElementById('likeCommentLabel@(item.CommentId)'), 
+                document.getElementById('dislikeCommentButton@(item.CommentId)'), document.getElementById('dislikeCommentLabel@(item.CommentId)'),
+                @item.CommentId, @_userManager.GetUserId(User))" data-likes="@item.Likes">
+                👍
+                </button>
+                <label id="likeCommentLabel@(item.CommentId)">@item.Likes</label>
+            } else
+            {
+                <button class="like-button like-not-fill" data-toggle="button" aria-pressed="false" id="likeCommentButton@(item.CommentId)"
+                onclick="myLikeCommentFunction(this, document.getElementById('likeCommentLabel@(item.CommentId)'), 
+                document.getElementById('dislikeCommentButton@(item.CommentId)'), document.getElementById('dislikeCommentLabel@(item.CommentId)'),
+                @item.CommentId, @_userManager.GetUserId(User))" 
+                data-likes="@item.Likes" disabled="@(!User.Identity.IsAuthenticated)">
+                👍
+                </button>
+                <label id="likeCommentLabel@(item.CommentId)">@item.Likes</label>
+            }
+
+            @if(IsCommentDisliked[i])
+            {
+                <button class="like-button like-fill" data-toggle="button" aria-pressed="false" id="dislikeCommentButton@(item.CommentId)"
+                onclick="myDislikeCommentFunction(this, document.getElementById('dislikeCommentLabel@(item.CommentId)'), 
+                document.getElementById('likeCommentButton@(item.CommentId)'), document.getElementById('likeCommentLabel@(item.CommentId)'),
+                @item.CommentId, @_userManager.GetUserId(User))" data-dislikes="@item.Dislikes">
+                👎
+                </button>
+                <label id="dislikeCommentLabel@(item.CommentId)">@item.Dislikes</label>
+            } else
+            {
+                <button class="like-button like-not-fill" data-toggle="button" aria-pressed="false" id="dislikeCommentButton@(item.CommentId)"
+                onclick="myDislikeCommentFunction(this, document.getElementById('dislikeCommentLabel@(item.CommentId)'), 
+                document.getElementById('likeCommentButton@(item.CommentId)'), document.getElementById('likeCommentLabel@(item.CommentId)'),
+                @item.CommentId, @_userManager.GetUserId(User))" 
+                data-dislikes="@item.Dislikes" disabled="@(!User.Identity.IsAuthenticated)">
+                👎
+                </button>
+                <label id="dislikeCommentLabel@(item.CommentId)">@item.Dislikes</label>
+            }
+        </div>
+    
+        <script>
+            function myLikeCommentFunction(x1, y1, x2, y2, commentId, userId) 
+            {
+                console.log("myLikeCommentFunction called with commentId:", commentId, "and userId:", userId);
+                $.ajax({
+                    type: "POST",
+                    url: "/Article/LikeCommentAction",
+                    data: { commentId: commentId, UserId: userId },
+                    success: function (response) {
+                        // Update UI if necessary
+                        if (response.success) 
+                        {
+                            var likesCount = parseInt(x1.getAttribute("data-likes"));
+                            var dislikesCount = parseInt(x2.getAttribute("data-dislikes"));
+                            if(x1.classList.contains("like-fill"))
+                            {
+                                x1.classList.remove("like-fill");
+                                x1.classList.add("like-not-fill");
+                                likesCount--;
+                            } else
+                            {
+                                x1.classList.remove("like-not-fill");
+                                x1.classList.add("like-fill");
+                                if (x2.classList.contains("like-fill"))
+                                {
+                                    x2.classList.remove("like-fill");
+                                    x2.classList.add("like-not-fill");
+                                    dislikesCount--;
+                                }
+                                likesCount++;
+                            }
+                            x1.setAttribute("data-likes", likesCount);
+                            x2.setAttribute("data-dislikes", dislikesCount);
+                            y1.textContent = likesCount;
+                            y2.textContent = dislikesCount;
+                        } 
+                        else 
+                        {
+                            // Like action failed
+                            // Handle error if needed
+                        }
+                    },
+                    error: function (xhr, status, error) 
+                    {
+                        // Handle error if AJAX request fails
+                        console.error("AJAX error:", error);
+                        // Optionally, display an error message to the user
+                        alert("An error occurred while processing your request. Please try again later.");
+                    }
+                });
+            }
+            function myDislikeCommentFunction(x1, y1, x2, y2, commentId, userId) 
+            {
+                console.log("myDislikeFunction called with commentId:", commentId, "and userId:", userId);
+                $.ajax({
+                    type: "POST",
+                    url: "/Article/DislikeCommentAction",
+                    data: { commentId: commentId, UserId: userId },
+                    success: function (response) {
+                        // Update UI if necessary
+                        if (response.success) 
+                        {
+                            var dislikesCount = parseInt(x1.getAttribute("data-dislikes"));
+                            var likesCount = parseInt(x2.getAttribute("data-likes"));
+                            if(x1.classList.contains("like-fill"))
+                            {
+                                x1.classList.remove("like-fill");
+                                x1.classList.add("like-not-fill");
+                                dislikesCount--;
+                            } else
+                            {
+                                x1.classList.remove("like-not-fill");
+                                x1.classList.add("like-fill");
+                                if (x2.classList.contains("like-fill"))
+                                {
+                                    x2.classList.remove("like-fill");
+                                    x2.classList.add("like-not-fill");
+                                    likesCount--;
+                                }
+                                dislikesCount++;
+                            }
+                            x1.setAttribute("data-dislikes", dislikesCount);
+                            x2.setAttribute("data-likes", likesCount);
+                            y1.textContent = dislikesCount;
+                            y2.textContent = likesCount;
+                        } 
+                        else 
+                        {
+                            // Like action failed
+                            // Handle error if needed
+                        }
+                    },
+                    error: function (xhr, status, error) 
+                    {
+                        // Handle error if AJAX request fails
+                        console.error("AJAX error:", error);
+                        // Optionally, display an error message to the user
+                        alert("An error occurred while processing your request. Please try again later.");
+                    }
+                });
+            }
+        </script>
+        @{
+        if (User.IsInRole("admin")){
+        <div>
+            <a asp-controller="Comment" asp-action="Delete" asp-route-id="@item.CommentId">Видалити</a>
+        </div>
+        }}
     </div>
 </div>
 }
+
+
+@{
+if (User.IsInRole("admin")){
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.ArticleId">Змінити</a> |
-    <a asp-action="Delete" asp-route-id="@Model?.ArticleId">Видалити</a> |
+    <a asp-action="Delete" asp-route-id="@Model?.ArticleId">Видалити</a>
+</div>
+}}
+<div>
     <a asp-action="Index">Назад</a>
 </div>
 </div>

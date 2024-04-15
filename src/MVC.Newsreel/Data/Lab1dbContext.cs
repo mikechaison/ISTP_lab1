@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace MVC.Newsreel.Data;
 
-public partial class Lab1dbContext : DbContext
+public partial class Lab1dbContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
     public Lab1dbContext()
     {
@@ -31,6 +33,7 @@ public partial class Lab1dbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Article>(entity =>
         {
             entity.ToTable("Article");
@@ -155,7 +158,6 @@ public partial class Lab1dbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 

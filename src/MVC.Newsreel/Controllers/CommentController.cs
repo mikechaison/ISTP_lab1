@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +13,12 @@ namespace MVC.Newsreel.Controllers_
     public class CommentController : Controller
     {
         private readonly Lab1dbContext _context;
+        UserManager<User> _userManager;
 
-        public CommentController(Lab1dbContext context)
+        public CommentController(Lab1dbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Comment
@@ -63,6 +66,8 @@ namespace MVC.Newsreel.Controllers_
             if (ModelState.IsValid)
             {
                 comment.PubDate=DateTime.UtcNow;
+                var user = await _userManager.GetUserAsync(User);
+                comment.AuthorId=user.Id;
                 _context.Add(comment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details", "Article", new { id = comment.ArticleId } );

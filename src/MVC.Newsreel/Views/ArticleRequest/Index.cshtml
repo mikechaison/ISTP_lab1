@@ -11,41 +11,6 @@
 <p>
     <a asp-action="Create">Додати новий запит</a>
 </p>
-<!--<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Статус
-            </th>
-            <th>
-                Чорнова стаття
-            </th>
-            <th>
-                Редактор
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ArticleDraft.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Author.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ArticleRequestId">Змінити</a> |
-                <a asp-action="Delete" asp-route-id="@item.ArticleRequestId">Видаляти</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>-->
 <div class="artreq-container">
 @foreach (var item in Model) {
 <div class="artreq-cards">
@@ -54,10 +19,15 @@
         <a asp-controller="ArticleDraft" asp-action="Details" asp-route-id="@item.ArticleDraftId">
             <h5 class="mb-0">@Html.DisplayFor(modelItem => item.ArticleDraft.Title)</h5></a>
         <label>@Html.DisplayFor(modelItem => item.Author.Name)</label>
-        <div>
-            <a asp-action="Edit" asp-route-id="@item.ArticleRequestId">Змінити</a> |
-            <a asp-action="Delete" asp-route-id="@item.ArticleRequestId">Видаляти</a>
-        </div>
+        @{
+        if (User.IsInRole("admin"))
+        {
+            <div>
+                <a asp-action="Edit" asp-route-id="@item.ArticleRequestId">Змінити</a> |
+                <a asp-action="Delete" asp-route-id="@item.ArticleRequestId">Видаляти</a>
+            </div>
+        }
+        }
     </div>
 </div>
 }

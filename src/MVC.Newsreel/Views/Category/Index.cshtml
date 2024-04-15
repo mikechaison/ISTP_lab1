@@ -8,9 +8,13 @@
     <title>Категорії</title>
 </head>
 <body>
+@{
+if (User.IsInRole("admin")){
 <p>
     <a asp-action="Create">Додати нову категорію</a>
 </p>
+}
+}
 <table class="table">
     <thead>
         <tr>
