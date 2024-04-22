@@ -2,6 +2,7 @@ using MVC.Newsreel.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MVC.Newsreel.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MVC.Newsreel.Controllers;
 
@@ -14,8 +15,14 @@ public class RolesController : Controller
         _roleManager = roleManager;
         _userManager = userManager;
     }
+
+    [Authorize(Roles="admin")]
     public IActionResult Index() => View(_roleManager.Roles.ToList());
+
+    [Authorize(Roles="admin")]
     public IActionResult UserList() => View(_userManager.Users.ToList());
+
+    [Authorize(Roles="admin")]
     public async Task<IActionResult> Edit(string userId)
     {
         // отримуємо користувача
@@ -38,6 +45,7 @@ public class RolesController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles="admin")]
     public async Task<IActionResult> Edit(string userId, List<string> roles)
     {
         // отримуємо користувача

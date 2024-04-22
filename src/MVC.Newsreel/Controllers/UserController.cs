@@ -44,8 +44,51 @@ namespace MVC.Newsreel.Controllers_
                 return NotFound();
             }
 
-            var lab1dbContext = _context.Articles.Where(a => a.AuthorId == id).Include(a => a.Author).Include(a => a.Category);
+            var lab1dbContext = _context.Articles.Where(a => a.AuthorId == id)
+                                .OrderByDescending(a => a.PubDate)
+                                .Include(a => a.Author).Include(a => a.Category);
+            ViewData["Username"] = user.Name;
             return View(await lab1dbContext.ToListAsync());
+        }
+
+        public async Task<IActionResult> FavArticles(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var articleIds = await _context.Likes.Where(a => a.UserId == id && a.IsDis == false).Select(a => a.ArticleId).ToListAsync();
+            var articles = await _context.Articles.Where(a => articleIds.Contains(a.ArticleId))
+                                .OrderByDescending(a => a.PubDate)
+                                .Include(a => a.Author).Include(a => a.Category)
+                                .ToListAsync();
+            ViewData["Username"] = user.Name;
+            return View(articles);
+        }
+
+        public async Task<IActionResult> Profile(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            };
+
+            return View(user);
         }
 
         public async Task<IActionResult> Comments(int? id)
@@ -62,7 +105,10 @@ namespace MVC.Newsreel.Controllers_
                 return NotFound();
             }
 
-            var lab1dbContext = _context.Comments.Where(a => a.AuthorId == id).Include(a => a.Author).Include(a => a.Article);
+            var lab1dbContext = _context.Comments.Where(a => a.AuthorId == id)
+                                .OrderByDescending(a => a.PubDate)
+                                .Include(a => a.Author).Include(a => a.Article);
+            ViewData["Username"] = user.Name;
             return View(await lab1dbContext.ToListAsync());
         }
 

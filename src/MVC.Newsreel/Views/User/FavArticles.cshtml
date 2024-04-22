@@ -4,18 +4,17 @@
     string username = (string)ViewData["Username"];
 }
 
-
 <!DOCTYPE html>
 
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Статті</title>
+    <title>Вподобані статті</title>
 </head>
 <body>
 
 <div>
-    <h1>Статті автора @username</h1>
+    <h1>Вподобані статті користувача @username</h1>
 </div>
 <div>
 @foreach (var item in Model) {

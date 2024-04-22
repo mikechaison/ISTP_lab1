@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -26,6 +27,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleDraft
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Index()
         {
             var lab1dbContext = _context.ArticleDrafts.Include(a => a.Author).Include(a => a.SuggestedCategory);
@@ -33,6 +35,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleDraft/Details/5
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -53,6 +56,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleDraft/Create
+        [Authorize(Roles="admin,editor")]
         public IActionResult Create()
         {
             ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name");
@@ -65,6 +69,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Create([Bind("ArticleDraftId,Title,AuthorId,SuggestedCategoryId,Text,ImageFile")] ArticleDraft articleDraft)
         {
             if (ModelState.IsValid)
@@ -90,6 +95,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleDraft/Edit/5
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -112,6 +118,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Edit(int id, [Bind("ArticleDraftId,Title,AuthorId,SuggestedCategoryId,Text,ImageFile")] ArticleDraft articleDraft)
         {
             if (id != articleDraft.ArticleDraftId)
@@ -161,6 +168,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleDraft/Delete/5
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -183,6 +191,7 @@ namespace MVC.Newsreel.Controllers_
         // POST: ArticleDraft/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var articleDraft = await _context.ArticleDrafts.FindAsync(id);

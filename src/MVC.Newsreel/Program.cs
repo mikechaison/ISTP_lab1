@@ -14,13 +14,20 @@ builder.Services.AddDbContext<Lab1dbContext>(options =>
     options.ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.NavigationBaseIncludeIgnored));
     });
 
-builder.Services.AddIdentity<User, IdentityRole <int> >().AddEntityFrameworkStores<Lab1dbContext>();
+builder.Services.AddIdentity<User, IdentityRole <int> >()
+    .AddEntityFrameworkStores<Lab1dbContext>().AddDefaultTokenProviders();
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.SignIn.RequireConfirmedEmail = true;
+});
+
 builder.Services.AddAuthentication();
 
-
+builder.Services.Configure<SMTPConfigModel>(builder.Configuration.GetSection("SMTPConfig"));
 builder.Services.AddTransient<ArticleDataPortServiceFactory>();
 builder.Services.AddTransient<ArticleImportService>();
 builder.Services.AddTransient<ArticleExportService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

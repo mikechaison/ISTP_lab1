@@ -68,7 +68,11 @@ namespace MVC.Newsreel.Controllers_
             ViewData["ArticleId"] = new SelectList(_context.Articles, "ArticleId", "Title");
             ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name");
             var user = await _userManager.GetUserAsync(User);
-            var UserId = user.Id;
+            int? UserId = null;
+            if (user != null)
+            {
+                UserId = user.Id;
+            }
 
             var like  = await _context.Likes.FirstOrDefaultAsync(like => like.ArticleId == id && like.UserId == UserId);
 
@@ -116,6 +120,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: Article/Create
+        [Authorize(Roles="admin")]
         public IActionResult Create()
         {
             ViewData["AuthorId"] = new SelectList(_context.Users, "UserId", "Name");
@@ -128,6 +133,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> Create([Bind("ArticleId,Title,CategoryId,AuthorId,Text,Likes,Dislikes,PubDate,ImageFile")] Article article)
         {
             if (ModelState.IsValid)
@@ -176,6 +182,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ArticleId,Title,CategoryId,AuthorId,Text,Likes,Dislikes,PubDate,ImageFile")] Article article)
         {
             if (id != article.ArticleId)
@@ -232,6 +239,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: Article/Delete/5
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -254,6 +262,7 @@ namespace MVC.Newsreel.Controllers_
         // POST: Article/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var article = await _context.Articles.FindAsync(id);
@@ -369,34 +378,51 @@ namespace MVC.Newsreel.Controllers_
         }
 
         [HttpGet]
+        [Authorize(Roles="admin")]
         public IActionResult Import()
         {
             return View();
         }
 
         [HttpGet]
+        [Authorize(Roles="admin")]
         public IActionResult ImportExcel()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> ImportExcel(IFormFile articleFile,
         CancellationToken cancellationToken)
         {
             var importService = _articleDataPortServiceFactory.GetImportService(articleFile.ContentType);
             using var stream = articleFile.OpenReadStream();
             await importService.ImportFromStreamAsync(stream, cancellationToken);
+            var articlesToUpdate = _context.Articles.Where(article => article.AuthorId == null);
+            var user = await _userManager.GetUserAsync(User);
+
+            foreach (var article in articlesToUpdate)
+            {
+                // Update AuthorId to the desired value
+                article.AuthorId = user.Id;
+                article.Author = user;
+            }
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
+        [Authorize(Roles="admin")]
         public IActionResult ImportDocx()
         {
             return View();
         }
 
         [HttpPost]
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> ImportDocx(IFormFile file,
         CancellationToken cancellationToken)
         {
@@ -421,13 +447,17 @@ namespace MVC.Newsreel.Controllers_
                 text+=paragraphs[i].InnerText+"\n";
             }
 
+            var user = await _userManager.GetUserAsync(User);
+
             var article = new Article()
             {
                 Title = title,
                 Text = text,
                 PubDate = DateTime.UtcNow,
                 CategoryId = category_id,
-                Category = art_category
+                Category = art_category,
+                AuthorId = user.Id,
+                Author = user
             };
 
             var stream = img.GetStream();

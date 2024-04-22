@@ -1,0 +1,37 @@
+@model MVC.Newsreel.ViewModel.EmailConfirmModel
+
+<div class="container">
+    <div class="row text-center">
+        <div class="col-md-4">
+        </div>
+        <div class="col-md-4">
+            @if (Model.EmailVerified == true)
+            {
+                <div class="alert alert-success" role="alert">
+                    <p>Ваш email успішно підтверджений.</p>
+                </div>
+            }
+            else
+            {
+                if (Model.EmailSent)
+                {
+                    <p>Лист відправлений на вашу пошту.</p>
+                }
+
+                else
+                {
+                    <p>Ми відправимо лист на вашу пошту. Натисніть на кнопку для входу.</p>
+                }
+
+                <form asp-action="ConfirmEmail">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Email" />
+                    <p>Не отримав листа?</p>
+                    <div class="form-group">
+                        <input type="submit" value="Надіслати лист на пошту ще раз" class="btn btn-primary" />
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>

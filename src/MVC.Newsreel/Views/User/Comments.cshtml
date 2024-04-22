@@ -1,15 +1,20 @@
 @model IEnumerable<MVC.Newsreel.Data.Comment>
+
+@{
+    string username = (string)ViewData["Username"];
+}
+
 <!DOCTYPE html>
 
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
+    <title>Коментарії</title>
 </head>
 <body>
 
 <div>
-    <h1>Коментарії користувача</h1>
+    <h1>Коментарії користувача @username</h1>
 </div>
 <div>
 @foreach (var item in Model) {

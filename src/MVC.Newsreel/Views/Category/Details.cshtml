@@ -1,4 +1,10 @@
 @model IEnumerable<MVC.Newsreel.Data.Article>
+
+@{
+    string category = (string)ViewData["Category"];
+}
+
+
 <!DOCTYPE html>
 
 <html>
@@ -9,7 +15,7 @@
 <body>
 
 <div>
-    <h1>Статті за категорією</h1>
+    <h1>Статті за категорією @category</h1>
 </div>
 <div>
 @foreach (var item in Model) {

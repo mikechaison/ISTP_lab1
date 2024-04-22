@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<MVC.Newsreel.Data.User> _userManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -40,11 +43,43 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="ArticleRequest" asp-action="Index">Керування статтями</a>
                         </li>
                         }}
-                        <li class="nav-item">
+                        <!--<li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Правила сайту</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </div>
+                @if(User.Identity.IsAuthenticated)
+                {
+                     <ul class="navbar-nav navbarchik">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark high-heels" asp-controller="User" asp-action="Profile" 
+                            asp-route-id="@_userManager.GetUserId(User)">
+                                @User.Identity.Name
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout">
+                                    <input type="submit" value="Вихід" class="btn-size btn-login" style="font-weight:bold;"/>
+                            </form>
+                        </li> 
+                    </ul> 
+                }
+                else{
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <form method="get" asp-controller="Account" asp-action="Login">
+                                <input type="submit" value="Вхід" class="btn-size btn-login" style="font-weight:bold;"/>
+                            </form>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <form method="get" asp-controller="Account" asp-action="Register">
+                                <input type="submit" value="Реєстрація" class="btn-size btn-signup" style="font-weight:bold;"/>
+                            </form>
+                        </li>
+                    </ul>
+                }
             </div>
         </nav>
     </header>

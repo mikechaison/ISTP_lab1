@@ -1,0 +1,48 @@
+@model MVC.Newsreel.Data.User
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<MVC.Newsreel.Data.User> _userManager
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@Model.Name (@Model.UserName)</title>
+</head>
+<body>
+
+<div class="profile-body">
+    <div class="profile-img-body">
+        <img src="/static/images/profile_img2.jpg" class="profile-img">
+    </div>
+    <div>
+        <h1>@Model.Name</h1>
+        <p>@Model.UserName</p>
+        @if (await _userManager.IsInRoleAsync(@Model, "admin"))
+        {
+            <p>Адміністратор CyberBanderka</p>
+        }
+        else if (await _userManager.IsInRoleAsync(@Model, "editor"))
+        {
+            <p>Редактор CyberBanderka</p>
+        }
+        else{
+            <p>Користувач CyberBanderka</p>
+        }
+
+        @if (@User.Identity.Name == @Model.UserName)
+        {
+            <p><a asp-controller="Account" asp-action="ChangePassword">Змінити пароль</a></p>
+        }
+
+        @if (await _userManager.IsInRoleAsync(@Model, "editor"))
+        {
+        <label><a asp-action="Details" asp-route-id="@Model.Id">Статті</a> |</label>
+        }
+        <label><a asp-action="Comments" asp-route-id="@Model.Id">Коментарі</a> |</label>
+        <label><a asp-action="FavArticles" asp-route-id="@Model.Id">Вподобані статті</a></label>
+    </div>
+</div>
+</body>
+</html>

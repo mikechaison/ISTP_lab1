@@ -40,6 +40,7 @@ namespace MVC.Newsreel.Controllers_
             }
 
             var lab1dbContext = _context.Articles.Where(a => a.CategoryId == id).Include(a => a.Author).Include(a => a.Category);
+            ViewData["Category"] = category.Name;
             return View(await lab1dbContext.ToListAsync());
         }
 

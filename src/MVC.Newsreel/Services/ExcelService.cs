@@ -1,6 +1,8 @@
 using System.Globalization;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using MVC.Newsreel.Data;
 namespace MVC.Newsreel.Services;
@@ -27,7 +29,7 @@ where TEntity : class
 public class ArticleImportService : IImportService<Article>
 {
     private readonly Lab1dbContext context;
-    public ArticleImportService(Lab1dbContext context)
+    public ArticleImportService(Lab1dbContext context, UserManager<User> userManager)
     {
         this.context = context;
     }
@@ -57,6 +59,7 @@ public class ArticleImportService : IImportService<Article>
         var articleText = GetArticleText(row);
         var article = await context.Articles.FirstOrDefaultAsync(article
         => article.Title.Contains(articleTitle), cancellationToken);
+
         if (article is null)
         {
             article = new Article
@@ -107,9 +110,11 @@ public class ArticleDataPortServiceFactory
 : IDataPortServiceFactory<Article>
 {
     private readonly Lab1dbContext lab1DbContext;
-    public ArticleDataPortServiceFactory(Lab1dbContext lab1DbContext)
+    private readonly UserManager<User> userManager;
+    public ArticleDataPortServiceFactory(Lab1dbContext lab1DbContext, UserManager<User> userManager)
     {
         this.lab1DbContext = lab1DbContext;
+        this.userManager = userManager;
     }
     public IExportService<Article> GetExportService(string contentType)
     {
@@ -123,7 +128,7 @@ public class ArticleDataPortServiceFactory
     {
         if (contentType is "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         {
-            return new ArticleImportService(lab1DbContext);
+            return new ArticleImportService(lab1DbContext, userManager);
         }
         throw new NotImplementedException($"No import service implemented for articles with content type {contentType}");
     }

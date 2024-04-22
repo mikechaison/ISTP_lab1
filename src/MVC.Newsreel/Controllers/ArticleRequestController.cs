@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,6 +19,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleRequest
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Index()
         {
             var lab1dbContext = _context.ArticleRequests.Include(a => a.Article).Include(a => a.ArticleDraft).Include(a => a.Author);
@@ -25,6 +27,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleRequest/Details/5
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,6 +49,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleRequest/Create
+        [Authorize(Roles="admin,editor")]
         public IActionResult Create()
         {
             var userName = _userManager.GetUserName(User);
@@ -65,6 +69,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Create([Bind("ArticleRequestId,AuthorId,ArticleDraftId,ArticleId,Status")] ArticleRequest articleRequest)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -87,6 +92,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleRequest/Edit/5
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -113,6 +119,7 @@ namespace MVC.Newsreel.Controllers_
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ArticleRequestId,AuthorId,ArticleDraftId,ArticleId,Status")] ArticleRequest articleRequest)
         {
             if (id != articleRequest.ArticleRequestId)
@@ -170,6 +177,7 @@ namespace MVC.Newsreel.Controllers_
         }
 
         // GET: ArticleRequest/Delete/5
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -193,6 +201,7 @@ namespace MVC.Newsreel.Controllers_
         // POST: ArticleRequest/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="admin,editor")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var articleRequest = await _context.ArticleRequests.FindAsync(id);
